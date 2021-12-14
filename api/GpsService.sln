@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gps.service", "gps.service\gps.service.csproj", "{CF2E3DE9-E174-4ADA-B4BC-118648ADE8FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gps.dal", "gps.dal\gps.dal.csproj", "{F3C14524-D799-4815-BF16-88DE15FC56DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gps.common", "gps.common\gps.common.csproj", "{D045D5DD-904F-4D84-9387-D142DC6B8B25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF2E3DE9-E174-4ADA-B4BC-118648ADE8FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF2E3DE9-E174-4ADA-B4BC-118648ADE8FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF2E3DE9-E174-4ADA-B4BC-118648ADE8FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF2E3DE9-E174-4ADA-B4BC-118648ADE8FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3C14524-D799-4815-BF16-88DE15FC56DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C14524-D799-4815-BF16-88DE15FC56DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3C14524-D799-4815-BF16-88DE15FC56DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3C14524-D799-4815-BF16-88DE15FC56DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D045D5DD-904F-4D84-9387-D142DC6B8B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D045D5DD-904F-4D84-9387-D142DC6B8B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D045D5DD-904F-4D84-9387-D142DC6B8B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D045D5DD-904F-4D84-9387-D142DC6B8B25}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {02A38C19-7D83-483C-A57C-30B736157420}
+	EndGlobalSection
+EndGlobal
