@@ -27,6 +27,7 @@ namespace Gps.Service
 			var types = System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
 				.Where(x => x.GetInterfaces().Contains(typeof(IPerDepenecy)))
 				.ToArray();
+
 			builder.RegisterTypes(types)
 				.AsSelf()
 				.AsImplementedInterfaces()

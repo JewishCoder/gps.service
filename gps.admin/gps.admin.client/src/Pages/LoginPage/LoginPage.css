@@ -1,0 +1,26 @@
+.container {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+}
+
+.paper {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    max-width: 350px;
+    padding: 20px;
+}
+
+.field {
+    width: 100%;
+    margin: 10px 0 !important;
+}
+
+.submitBtn {
+    margin-top: 10px !important;
+}

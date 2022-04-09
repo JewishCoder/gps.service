@@ -1,5 +1,8 @@
-﻿using AutoMapper;
+﻿using Autofac;
 
+using AutoMapper;
+
+using gps.common;
 using gps.common.Dal;
 using gps.common.Dal.Repositories;
 using gps.common.Dto;
@@ -11,7 +14,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace gps.service.Services
 {
-	public class UsersService : IPerDepenecy
+	public class UsersService : IPerDepenecy, IInitializationService
 	{
 		private static readonly Func<string, object> _cacheKey = x => $"user_{x}";
 
@@ -24,6 +27,8 @@ namespace gps.service.Services
 		private IHttpContextAccessor HttpContextAccessor { get; }
 		
 		private IMemoryCache Cache { get; }
+		
+		public int Priority { get; }
 
 		public UsersService(
 			IUsersRepository repository, 
@@ -37,6 +42,17 @@ namespace gps.service.Services
 			Mapper = mapper;
 			HttpContextAccessor = httpContextAccessor;
 			Cache = memoryCache;
+			Priority = 1;
+		}
+
+		public Task InitializationAsync(IComponentContext context)
+		{
+			return Repository.CreateAsync(new UserDto
+			{
+				Login = "tech.admin",
+				Name = "Admin",
+				Role = RoleType.Admin,
+			}, "admin123");
 		}
 
 		public UserDto GetCurrent() 
