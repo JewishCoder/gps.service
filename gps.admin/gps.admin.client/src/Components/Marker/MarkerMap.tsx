@@ -115,7 +115,7 @@ export function MarkerMap({ isEditMode, centerPosition, zoom }: IMarkerMapProps)
                     markers.map((marker, index) => (
                         <Marker position={marker.position} key={marker.id}>
                             <Tooltip permanent>
-                                <span>{marker.id} {marker.name}</span>
+                                <span>{marker.name}</span>
                             </Tooltip>
                             <Popup>
                                 <Button disabled={!isEditMode} size="small" onClick={() => updateMarker(marker)}>Изменить</Button><br />
