@@ -21,7 +21,7 @@ namespace gps.service.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Get([FromQuery]string[] names = null) 
+		public async Task<IActionResult> Get([FromQuery] string[] names = null)
 		{
 			var points = await PointsService.GetAsync(new PointFilter { Names = names, })
 				.ConfigureAwait(continueOnCapturedContext: false);
@@ -38,7 +38,7 @@ namespace gps.service.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create(PointModel model) 
+		public async Task<IActionResult> Create(PointModel model)
 		{
 			var point = await PointsService.Create(model)
 				.ConfigureAwait(continueOnCapturedContext: false);
@@ -50,7 +50,7 @@ namespace gps.service.Controllers
 
 		[HttpPut]
 		[Route("{id}")]
-		public async Task<IActionResult> Update(long id, PointModel model) 
+		public async Task<IActionResult> Update(long id, PointModel model)
 		{
 			var point = await PointsService.Update(id, model)
 				.ConfigureAwait(continueOnCapturedContext: false);
@@ -60,7 +60,7 @@ namespace gps.service.Controllers
 
 		[HttpDelete]
 		[Route("{id}")]
-		public async Task<IActionResult> Delete(long id) 
+		public async Task<IActionResult> Delete(long id)
 		{
 			var isDeleted = await PointsService.DeleteAsync(id)
 				.ConfigureAwait(continueOnCapturedContext: false);

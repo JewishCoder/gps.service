@@ -35,14 +35,14 @@ namespace gps.dal.Repositories
 				point.Name = data.Name;
 				point.ModifiedOn = DateTime.UtcNow;
 			}
-			if(data.X != default && point.X != data.X)
+			if(data.Latitude != default && point.Latitude != data.Latitude)
 			{
-				point.X = data.X;
+				point.Latitude = data.Latitude;
 				point.ModifiedOn = DateTime.UtcNow;
 			}
-			if(data.Y != default && point.Y != data.Y)
+			if(data.Longitude != default && point.Longitude != data.Longitude)
 			{
-				point.Y = data.Y;
+				point.Longitude = data.Longitude;
 				point.ModifiedOn = DateTime.UtcNow;
 			}
 

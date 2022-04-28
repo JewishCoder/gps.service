@@ -50,7 +50,6 @@ namespace gps.dal.Repositories
 			var dbSet = GetDbSet(context);
 			PrepareEntityBeforeInsert(entity);
 
-
 			dbSet.Add(entity);
 
 			try

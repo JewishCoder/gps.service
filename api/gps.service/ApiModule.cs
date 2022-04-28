@@ -6,6 +6,9 @@ using gps.common.Dal;
 using gps.dal;
 using gps.service.Services;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Gps.Service
 {
 	public class ApiModule : Module
@@ -23,6 +26,13 @@ namespace Gps.Service
 			builder.RegisterType<JwtTokenFactory>()
 				.AsSelf()
 				.InstancePerDependency();
+
+			builder.Register(x => new JsonSerializerOptions
+			{
+				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+				PropertyNameCaseInsensitive = true,
+			}).SingleInstance();
 
 			var types = System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
 				.Where(x => x.GetInterfaces().Contains(typeof(IPerDepenecy)))

@@ -15,5 +15,7 @@ namespace gps.common.Dal.Repositories
 		Task<UserDto> CreateAsync(UserDto newUser, string password, CancellationToken cancellationToken = default);
 
 		Task<UserDto> UpdateAsync(UserDto data, CancellationToken cancellationToken = default);
+
+		Task<UserDto> UpdatePasswordAsync(long id, string password, CancellationToken cancellationToken = default);
 	}
 }

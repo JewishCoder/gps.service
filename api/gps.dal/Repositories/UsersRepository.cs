@@ -24,7 +24,7 @@ namespace gps.dal.Repositories
 
 			var user = await GetDbSet(context)
 				.AsNoTracking()
-				.Where(x => x.Login == login)
+				.Where(x => x.Login == login && x.DeletedOn == null)
 				.FirstOrDefaultAsync()
 				.ConfigureAwait(continueOnCapturedContext: false);
 
@@ -71,13 +71,44 @@ namespace gps.dal.Repositories
 				throw new NotFoundException(data?.Id ?? 0, "user", "not found");
 			}
 
+			if(user.Login != data.Login)
+			{
+				user.Login = data.Login;
+			}
+
 			if(user.Name != data.Name) 
 			{
 				user.Name = data.Name;
-				user.ModifiedOn = DateTime.UtcNow;
-				await context.SaveChangesAsync(cancellationToken)
-					.ConfigureAwait(continueOnCapturedContext: false);
 			}
+
+			if(user.Role != data.Role) 
+			{
+				user.Role = data.Role;
+			}
+
+			user.ModifiedOn = DateTime.UtcNow;
+			await context.SaveChangesAsync(cancellationToken)
+					.ConfigureAwait(continueOnCapturedContext: false);
+
+			return Mapper.Map<UserDto>(user);
+		}
+
+		public async Task<UserDto> UpdatePasswordAsync(long id, string password, CancellationToken cancellationToken = default) 
+		{
+			using var context = ContextFactory.Create();
+
+			var user = await GetDbSet(context).Where(x => x.Id == id)
+				.FirstOrDefaultAsync(cancellationToken);
+			if(user == null)
+			{
+				throw new NotFoundException(id, "user", "not found");
+			}
+
+			var hash = BCrypt.Net.BCrypt.EnhancedHashPassword(password, 12);
+			user.Password = hash;
+
+			await context.SaveChangesAsync(cancellationToken)
+				.ConfigureAwait(continueOnCapturedContext: false);
 
 			return Mapper.Map<UserDto>(user);
 		}

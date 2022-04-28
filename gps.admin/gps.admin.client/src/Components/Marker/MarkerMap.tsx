@@ -1,7 +1,12 @@
 import { Button, ButtonGroup, makeStyles } from "@material-ui/core";
-import { LatLngExpression, LatLngLiteral, LeafletMouseEvent } from "leaflet";
-import { ReactElement, useState } from "react";
+import { HubConnection } from "@microsoft/signalr";
+import { AxiosError } from "axios";
+import { LatLng, LatLngExpression, LatLngLiteral, LeafletMouseEvent } from "leaflet";
+import { ReactElement, useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
+import { Api, IPoint } from "../../Api/Api";
+import { ErrorConverter } from "../../Axios/AxsiosExtensions";
 import { MarkerCreationModal } from "./MarkerCreationModal";
 import { MarkerItem } from "./MarkerItem";
 
@@ -29,11 +34,12 @@ interface IMarkerMapProps {
     isEditMode: boolean,
     centerPosition: LatLngExpression,
     zoom: number,
+    notifyService: HubConnection | null,
 }
 
-export function MarkerMap({ isEditMode, centerPosition, zoom }: IMarkerMapProps): ReactElement {
+export function MarkerMap({ isEditMode, centerPosition, zoom, notifyService }: IMarkerMapProps): ReactElement {
+    const _navigate = useNavigate();
     const classes = useStyles();
-
 
     const [markers, setMarkers] = useState<IMarkerSate[]>([]);
     const [newMarkerDialogState, setNewMarkerDialogState] = useState(false);
@@ -41,12 +47,88 @@ export function MarkerMap({ isEditMode, centerPosition, zoom }: IMarkerMapProps)
     const [newPosition, setNewPosition] = useState<LatLngExpression | null>(null);
     const [initDialogMarker, setinitDialogMarker] = useState<IMarkerSate | null>(null);
 
+    const fetchPoints = async () => {
+        try {
+            const data = await Api.getPoints();
+            const markers = data.map<IMarkerSate>(x => {
+                return {
+                    id: x.id,
+                    name: x.name,
+                    position: [x.latitude, x.longitude] as LatLngExpression
+                };
+            })
+            setMarkers(markers);
+        }
+        catch (e: AxiosError | any) {
+            const error = ErrorConverter(e);
+            if (error.status == 401) {
+                _navigate("/");
+            }
+            else if (error.status == 403) {
+                alert("У вас нет доступа!");
+            }
+            else if (error.status == 400) {
+                alert("Не корректный запрос. " + error.message);
+            }
+            else {
+                alert(error.message);
+                console.error(error);
+            }
+        }
+    }
+
+    useEffect(() => {
+        notifyService?.on("NewPointEvent", (point) => {
+            const userId = Api.getUserId();
+            if (point && point.userId != userId) {
+                fetchPoints();
+            }
+        });
+        notifyService?.on("UpdatedPointEvent", (point) => {
+            const userId = Api.getUserId();
+            if (point && point.userId != userId) {
+                fetchPoints();
+            }
+        });
+        notifyService?.on("DeletedPointEvent", (point) => {
+            const userId = Api.getUserId();
+            if (point && point.userId != userId) {
+                fetchPoints();
+            }
+        });
+        fetchPoints();
+    }, [notifyService]);
+
     const addMarker = (marker: IMarkerSate) => {
         setMarkers(markers => [...markers, marker]);
     }
 
-    const removeMarker = (id: number) => {
-        setMarkers(markers.filter(x => x.id != id));
+    const removeMarker = async (id: number) => {
+        try {
+            const data = await Api.deletePoint(id);
+            if (data) {
+                setMarkers(markers.filter(x => x.id != id));
+            }
+            else {
+                alert("Не удалось удалить точку!");
+            }
+        }
+        catch (e: AxiosError | any) {
+            const error = ErrorConverter(e);
+            if (error.status == 401) {
+                _navigate("/");
+            }
+            else if (error.status == 403) {
+                alert("У вас нет доступа!");
+            }
+            else if (error.status == 400) {
+                alert("Не корректный запрос. " + error.message);
+            }
+            else {
+                alert(error.message);
+                console.error(error);
+            }
+        }
     }
 
     const updateMarker = (marker: IMarkerSate) => {
@@ -66,12 +148,34 @@ export function MarkerMap({ isEditMode, centerPosition, zoom }: IMarkerMapProps)
         setNewMarkerDialogState(false);
     }
 
-    const onNewMarkerDialogSaveClick = (name: string) => {
-
+    const onNewMarkerDialogSaveClick = async (name: string) => {
         if (newPosition) {
-            addMarker({ name, position: newPosition, id: markers.length + 1 });
-            setNewPosition(null);
-            setNewMarkerDialogState(false);
+            try {
+                const data = await Api.createPoint(name, newPosition as LatLng);
+                addMarker({
+                    id: data.id,
+                    name: data.name,
+                    position: [data.latitude, data.longitude] as LatLngExpression
+                });
+                setNewPosition(null);
+                setNewMarkerDialogState(false);
+            }
+            catch (e: AxiosError | any) {
+                const error = ErrorConverter(e);
+                if (error.status == 401) {
+                    _navigate("/");
+                }
+                else if (error.status == 403) {
+                    alert("У вас нет доступа!");
+                }
+                else if (error.status == 400) {
+                    alert("Не корректный запрос. " + error.message);
+                }
+                else {
+                    alert(error.message);
+                    console.error(error);
+                }
+            }
         }
         else {
             console.warn('marker position not found');
@@ -83,26 +187,48 @@ export function MarkerMap({ isEditMode, centerPosition, zoom }: IMarkerMapProps)
         setUpdateMarkerDialogState(false);
     }
 
-    const onUpdateMarkerDialogSaveClick = (name: string) => {
+    const onUpdateMarkerDialogSaveClick = async (name: string) => {
         if (initDialogMarker == null) return;
+        try{
+            const data = await Api.updatePoint(initDialogMarker.id, name, initDialogMarker.position as LatLng);
+            const updatedMarkes = markers.map((item) => {
+                if (item.id == data.id) {
+                    return {
+                        id: data.id,
+                        name: data.name,
+                        position: [data.latitude, data.longitude] as LatLngExpression
+                    };
+                }
 
-        const updatedMarkes = markers.map((item) => {
-            if (item.id == initDialogMarker.id) {
-                return { id: initDialogMarker.id, name: name, position: initDialogMarker.position };
+                return item;
+            });
+
+            setMarkers(updatedMarkes);
+            setinitDialogMarker(null);
+            setUpdateMarkerDialogState(false);
+        }
+        catch (e: AxiosError | any) {
+            const error = ErrorConverter(e);
+            if (error.status == 401) {
+                _navigate("/");
             }
-
-            return item;
-        });
-
-        setMarkers(updatedMarkes);
-        setinitDialogMarker(null);
-        setUpdateMarkerDialogState(false);
+            else if (error.status == 403) {
+                alert("У вас нет доступа!");
+            }
+            else if (error.status == 400) {
+                alert("Не корректный запрос. " + error.message);
+            }
+            else {
+                alert(error.message);
+                console.error(error);
+            }
+        }
     }
 
     return (
         <>
-            <MarkerCreationModal isOpen={newMarkerDialogState} title={"Создание точки"}  markerName={""} onSaveClick={onNewMarkerDialogSaveClick} onCancelClick={onNewMarkerDialogCancelClick} />
-            <MarkerCreationModal isOpen={updateMarkerDialogState} title={"Изменение точки"} markerName={initDialogMarker?.name ?? ""} onSaveClick={onUpdateMarkerDialogSaveClick} onCancelClick={onUpdateMarkerDialogCancelClick} />
+            <MarkerCreationModal isOpen={newMarkerDialogState} title={"Создание точки назначения"} markerName={""} onSaveClick={onNewMarkerDialogSaveClick} onCancelClick={onNewMarkerDialogCancelClick} />
+            <MarkerCreationModal isOpen={updateMarkerDialogState} title={"Изменение точки назначения"} markerName={initDialogMarker?.name ?? ""} onSaveClick={onUpdateMarkerDialogSaveClick} onCancelClick={onUpdateMarkerDialogCancelClick} />
             <MapContainer
                 className={classes.container}
                 center={centerPosition} zoom={zoom}>

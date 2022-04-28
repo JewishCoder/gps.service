@@ -1,5 +1,7 @@
 ﻿using gps.common.Dto;
 
+using System.Text.Json.Serialization;
+
 namespace gps.service.Models
 {
 	public class TokenModel
@@ -8,6 +10,7 @@ namespace gps.service.Models
 
 		public string Token { get; init; }
 
+		[JsonIgnore]
 		public string RefreshToken { get; init; }
 
 		public DateTime Expiration { get; init; }

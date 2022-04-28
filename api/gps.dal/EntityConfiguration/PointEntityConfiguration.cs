@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using gps.dal.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -25,16 +20,13 @@ namespace gps.dal.EntityConfiguration
 				.HasColumnName("name")
 				.HasMaxLength(100);
 
-			builder.HasIndex(x => x.Name)
-				.IsUnique();
-
-			builder.Property(x => x.X)
+			builder.Property(x => x.Latitude)
 				.HasColumnName("latitude");
 
-			builder.Property(x => x.Y)
+			builder.Property(x => x.Longitude)
 				.HasColumnName("longitude");
 
-			builder.HasIndex(x => new { x.X, x.Y });
+			builder.HasIndex(x => new { x.Latitude, x.Longitude });
 		}
 	}
 }

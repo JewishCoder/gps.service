@@ -94,7 +94,7 @@ export function UserModal({ isOpen, title, user, onSave, onCancel }: IUserModalP
 
     const onSaveClick = () => {
         if (newUser && !cannotSave) {
-            onSave(newUser, password);
+            onSave(newUser, password == "" ? null : password);
         }
         setUser(defaultUser);
         setPassword("");

@@ -24,7 +24,7 @@ namespace gps.dal.EntityConfiguration
 				.HasColumnName("login")
 				.HasMaxLength(20);
 
-			builder.HasIndex(x => x.Login)
+			builder.HasIndex(x => new { x.Login, x.DeletedOn })
 				.IsUnique();
 
 			builder.Property(x => x.Password)
