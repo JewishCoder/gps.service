@@ -5,6 +5,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles(() => ({
+    content: {
+        color: "black"
+    }
+}));
 
 interface IDeleteConfirmModalProps{
     isOpen: boolean;
@@ -14,7 +21,9 @@ interface IDeleteConfirmModalProps{
 }
 
 export function DeleteConfirmModal({isOpen, data, onYesClick, onNoClick}: IDeleteConfirmModalProps) {
-  return (
+    const classes = useStyles();
+  
+    return (
     <Dialog
         open={isOpen}
         aria-labelledby="alert-dialog-title"
@@ -22,7 +31,7 @@ export function DeleteConfirmModal({isOpen, data, onYesClick, onNoClick}: IDelet
      >
         <DialogTitle id="alert-dialog-title">Подтверждение удаления</DialogTitle>
         <DialogContent>
-            <DialogContentText id="alert-dialog-description">
+            <DialogContentText className={classes.content} id="alert-dialog-description">
                {data}
             </DialogContentText>
         </DialogContent>

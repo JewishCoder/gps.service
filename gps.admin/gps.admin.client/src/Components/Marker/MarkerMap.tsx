@@ -7,6 +7,7 @@ import { MapContainer, Marker, Popup, TileLayer, Tooltip } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import { Api, IPoint } from "../../Api/Api";
 import { ErrorConverter } from "../../Axios/AxsiosExtensions";
+import { DeleteConfirmModal } from "../DeleteConfirmModal";
 import { MarkerCreationModal } from "./MarkerCreationModal";
 import { MarkerItem } from "./MarkerItem";
 
@@ -44,8 +45,10 @@ export function MarkerMap({ isEditMode, centerPosition, zoom, notifyService }: I
     const [markers, setMarkers] = useState<IMarkerSate[]>([]);
     const [newMarkerDialogState, setNewMarkerDialogState] = useState(false);
     const [updateMarkerDialogState, setUpdateMarkerDialogState] = useState(false);
+    const [deleteMarkerDialogState, setDeleteMarkerDialogState] = useState(false);
     const [newPosition, setNewPosition] = useState<LatLngExpression | null>(null);
     const [initDialogMarker, setinitDialogMarker] = useState<IMarkerSate | null>(null);
+    const [deleteMarker,  setDeleteMarker] = useState<IMarkerSate | null>(null);
 
     const fetchPoints = async () => {
         try {
@@ -103,32 +106,9 @@ export function MarkerMap({ isEditMode, centerPosition, zoom, notifyService }: I
         setMarkers(markers => [...markers, marker]);
     }
 
-    const removeMarker = async (id: number) => {
-        try {
-            const data = await Api.deletePoint(id);
-            if (data) {
-                setMarkers(markers.filter(x => x.id != id));
-            }
-            else {
-                alert("Не удалось удалить точку!");
-            }
-        }
-        catch (e: AxiosError | any) {
-            const error = ErrorConverter(e);
-            if (error.status == 401) {
-                _navigate("/");
-            }
-            else if (error.status == 403) {
-                alert("У вас нет доступа!");
-            }
-            else if (error.status == 400) {
-                alert("Не корректный запрос. " + error.message);
-            }
-            else {
-                alert(error.message);
-                console.error(error);
-            }
-        }
+    const removeMarker = async (marker: IMarkerSate) => {
+       setDeleteMarker(marker);
+       setDeleteMarkerDialogState(true);
     }
 
     const updateMarker = (marker: IMarkerSate) => {
@@ -225,10 +205,51 @@ export function MarkerMap({ isEditMode, centerPosition, zoom, notifyService }: I
         }
     }
 
+    const onDeleteYesClick = async ()  => {
+        
+        try {
+            if(deleteMarker==null) return;
+            const data = await Api.deletePoint(deleteMarker.id);
+            if (data) {
+                setMarkers(markers.filter(x => x.id != deleteMarker.id));
+            }
+            else {
+                alert("Не удалось удалить точку!");
+            }
+        }
+        catch (e: AxiosError | any) {
+            const error = ErrorConverter(e);
+            if (error.status == 401) {
+                _navigate("/");
+            }
+            else if (error.status == 403) {
+                alert("У вас нет доступа!");
+            }
+            else if (error.status == 400) {
+                alert("Не корректный запрос. " + error.message);
+            }
+            else {
+                alert(error.message);
+                console.error(error);
+            }
+        }
+        finally {
+            setDeleteMarkerDialogState(false);
+            setDeleteMarker(null);
+        }
+        
+    }
+
+    const onDeleteNoClick = () : void => {
+        setDeleteMarkerDialogState(false);
+        setDeleteMarker(null);
+    }
+
     return (
         <>
             <MarkerCreationModal isOpen={newMarkerDialogState} title={"Создание точки назначения"} markerName={""} onSaveClick={onNewMarkerDialogSaveClick} onCancelClick={onNewMarkerDialogCancelClick} />
             <MarkerCreationModal isOpen={updateMarkerDialogState} title={"Изменение точки назначения"} markerName={initDialogMarker?.name ?? ""} onSaveClick={onUpdateMarkerDialogSaveClick} onCancelClick={onUpdateMarkerDialogCancelClick} />
+            <DeleteConfirmModal isOpen={deleteMarkerDialogState} data="Вы уверены, что хотите удалить точку назначения?" onYesClick = {onDeleteYesClick} onNoClick = {onDeleteNoClick}/>
             <MapContainer
                 className={classes.container}
                 center={centerPosition} zoom={zoom}>
@@ -245,7 +266,7 @@ export function MarkerMap({ isEditMode, centerPosition, zoom, notifyService }: I
                             </Tooltip>
                             <Popup>
                                 <Button disabled={!isEditMode} size="small" onClick={() => updateMarker(marker)}>Изменить</Button><br />
-                                <Button disabled={!isEditMode} size="small" onClick={() => removeMarker(marker.id)}>Удалить</Button>
+                                <Button disabled={!isEditMode} size="small" onClick={() => removeMarker(marker)}>Удалить</Button>
                             </Popup>
                         </Marker>
                     ))
